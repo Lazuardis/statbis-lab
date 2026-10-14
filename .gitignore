@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.local
+.vite/
+__pycache__/
+
+# Screenshots of Numiqo: UX reference only, never published.
+reference/
