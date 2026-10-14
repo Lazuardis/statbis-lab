@@ -1,0 +1,39 @@
+:root {
+  /* Brand accent #0F6B6B and its tints/shades. */
+  --accent: #0f6b6b;
+  --accent-strong: #0a5050;
+  --accent-mid: #4f9393;
+  --accent-line: #9fc6c6;
+  --accent-soft: #e2efef;
+  --accent-wash: #f2f8f8;
+
+  --text: #1f2933;
+  --muted: #6b7785;
+  --rule: #e3e8ec;
+  --rule-strong: #cfd7dd;
+  --bg: #ffffff;
+  --surface: #f5f7f8;
+  --grid-head: #f8fafb;
+
+  --danger: #b42318;
+  --danger-soft: #fdecea;
+  --warn: #9a6200;
+  --warn-soft: #fff6e0;
+
+  /* Okabe–Ito palette for groups in charts (colour-blind safe). */
+  --oi-1: #0072b2;
+  --oi-2: #e69f00;
+  --oi-3: #009e73;
+  --oi-4: #cc79a7;
+  --oi-5: #56b4e9;
+  --oi-6: #d55e00;
+  --oi-7: #f0e442;
+  --oi-8: #000000;
+
+  --font: 'Lato', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --radius: 6px;
+  --content-width: 1200px;
+  --gutter: 16px;
+  --row-h: 26px;
+}

@@ -1,0 +1,301 @@
+Customer_ID,Segment,Payment
+C5001,Office worker,QRIS
+C5002,Family,E-wallet
+C5003,Student,E-wallet
+C5004,Student,QRIS
+C5005,Office worker,E-wallet
+C5006,Student,QRIS
+C5007,Family,Cash
+C5008,Office worker,QRIS
+C5009,Student,QRIS
+C5010,Student,E-wallet
+C5011,Office worker,E-wallet
+C5012,Office worker,E-wallet
+C5013,Student,E-wallet
+C5014,Student,QRIS
+C5015,Office worker,QRIS
+C5016,Family,Cash
+C5017,Student,E-wallet
+C5018,Student,QRIS
+C5019,Office worker,E-wallet
+C5020,Student,QRIS
+C5021,Office worker,E-wallet
+C5022,Office worker,QRIS
+C5023,Office worker,QRIS
+C5024,Office worker,QRIS
+C5025,Student,E-wallet
+C5026,Student,QRIS
+C5027,Student,E-wallet
+C5028,Office worker,E-wallet
+C5029,Office worker,QRIS
+C5030,Student,QRIS
+C5031,Student,E-wallet
+C5032,Family,QRIS
+C5033,Office worker,QRIS
+C5034,Student,E-wallet
+C5035,Office worker,QRIS
+C5036,Office worker,QRIS
+C5037,Family,Cash
+C5038,Office worker,E-wallet
+C5039,Office worker,QRIS
+C5040,Student,E-wallet
+C5041,Student,QRIS
+C5042,Student,E-wallet
+C5043,Family,E-wallet
+C5044,Office worker,QRIS
+C5045,Office worker,QRIS
+C5046,Student,Cash
+C5047,Student,QRIS
+C5048,Student,E-wallet
+C5049,Student,QRIS
+C5050,Family,E-wallet
+C5051,Family,E-wallet
+C5052,Office worker,QRIS
+C5053,Family,Cash
+C5054,Student,QRIS
+C5055,Family,E-wallet
+C5056,Office worker,QRIS
+C5057,Office worker,QRIS
+C5058,Office worker,Cash
+C5059,Office worker,QRIS
+C5060,Office worker,E-wallet
+C5061,Office worker,QRIS
+C5062,Student,E-wallet
+C5063,Office worker,QRIS
+C5064,Family,E-wallet
+C5065,Office worker,QRIS
+C5066,Family,E-wallet
+C5067,Office worker,E-wallet
+C5068,Student,Cash
+C5069,Office worker,Cash
+C5070,Office worker,E-wallet
+C5071,Student,Cash
+C5072,Student,E-wallet
+C5073,Office worker,QRIS
+C5074,Student,QRIS
+C5075,Student,QRIS
+C5076,Office worker,E-wallet
+C5077,Office worker,QRIS
+C5078,Family,QRIS
+C5079,Office worker,QRIS
+C5080,Office worker,QRIS
+C5081,Family,E-wallet
+C5082,Student,QRIS
+C5083,Student,E-wallet
+C5084,Office worker,QRIS
+C5085,Student,QRIS
+C5086,Office worker,E-wallet
+C5087,Family,E-wallet
+C5088,Student,Cash
+C5089,Student,E-wallet
+C5090,Student,E-wallet
+C5091,Family,E-wallet
+C5092,Student,QRIS
+C5093,Office worker,E-wallet
+C5094,Student,QRIS
+C5095,Student,QRIS
+C5096,Student,E-wallet
+C5097,Student,E-wallet
+C5098,Student,E-wallet
+C5099,Student,E-wallet
+C5100,Family,E-wallet
+C5101,Student,QRIS
+C5102,Office worker,QRIS
+C5103,Office worker,E-wallet
+C5104,Student,E-wallet
+C5105,Office worker,QRIS
+C5106,Office worker,QRIS
+C5107,Student,QRIS
+C5108,Family,Cash
+C5109,Office worker,QRIS
+C5110,Office worker,E-wallet
+C5111,Office worker,Cash
+C5112,Family,E-wallet
+C5113,Student,QRIS
+C5114,Family,QRIS
+C5115,Student,E-wallet
+C5116,Office worker,E-wallet
+C5117,Office worker,E-wallet
+C5118,Student,QRIS
+C5119,Office worker,E-wallet
+C5120,Office worker,E-wallet
+C5121,Student,E-wallet
+C5122,Student,QRIS
+C5123,Student,E-wallet
+C5124,Student,Cash
+C5125,Office worker,E-wallet
+C5126,Office worker,QRIS
+C5127,Office worker,QRIS
+C5128,Student,E-wallet
+C5129,Student,QRIS
+C5130,Student,QRIS
+C5131,Student,QRIS
+C5132,Student,QRIS
+C5133,Student,E-wallet
+C5134,Office worker,Cash
+C5135,Student,E-wallet
+C5136,Student,E-wallet
+C5137,Student,E-wallet
+C5138,Family,E-wallet
+C5139,Student,QRIS
+C5140,Office worker,Cash
+C5141,Student,Cash
+C5142,Family,E-wallet
+C5143,Office worker,QRIS
+C5144,Office worker,E-wallet
+C5145,Office worker,E-wallet
+C5146,Office worker,QRIS
+C5147,Office worker,QRIS
+C5148,Office worker,E-wallet
+C5149,Student,E-wallet
+C5150,Student,QRIS
+C5151,Office worker,QRIS
+C5152,Family,E-wallet
+C5153,Office worker,QRIS
+C5154,Office worker,QRIS
+C5155,Student,E-wallet
+C5156,Office worker,QRIS
+C5157,Student,QRIS
+C5158,Family,Cash
+C5159,Student,QRIS
+C5160,Family,E-wallet
+C5161,Family,E-wallet
+C5162,Student,E-wallet
+C5163,Office worker,QRIS
+C5164,Office worker,QRIS
+C5165,Family,QRIS
+C5166,Family,QRIS
+C5167,Office worker,QRIS
+C5168,Student,QRIS
+C5169,Office worker,QRIS
+C5170,Office worker,E-wallet
+C5171,Student,QRIS
+C5172,Office worker,QRIS
+C5173,Office worker,QRIS
+C5174,Office worker,QRIS
+C5175,Student,E-wallet
+C5176,Office worker,E-wallet
+C5177,Office worker,QRIS
+C5178,Office worker,E-wallet
+C5179,Family,E-wallet
+C5180,Student,E-wallet
+C5181,Office worker,QRIS
+C5182,Student,QRIS
+C5183,Office worker,QRIS
+C5184,Student,E-wallet
+C5185,Student,E-wallet
+C5186,Family,E-wallet
+C5187,Student,QRIS
+C5188,Student,QRIS
+C5189,Office worker,E-wallet
+C5190,Office worker,QRIS
+C5191,Student,E-wallet
+C5192,Office worker,E-wallet
+C5193,Office worker,E-wallet
+C5194,Family,QRIS
+C5195,Student,QRIS
+C5196,Family,QRIS
+C5197,Family,E-wallet
+C5198,Student,QRIS
+C5199,Student,E-wallet
+C5200,Office worker,E-wallet
+C5201,Family,E-wallet
+C5202,Family,E-wallet
+C5203,Office worker,QRIS
+C5204,Office worker,Cash
+C5205,Student,QRIS
+C5206,Office worker,QRIS
+C5207,Office worker,Cash
+C5208,Student,QRIS
+C5209,Student,QRIS
+C5210,Student,E-wallet
+C5211,Family,E-wallet
+C5212,Student,QRIS
+C5213,Student,E-wallet
+C5214,Office worker,QRIS
+C5215,Family,QRIS
+C5216,Student,QRIS
+C5217,Office worker,Cash
+C5218,Student,E-wallet
+C5219,Student,QRIS
+C5220,Family,E-wallet
+C5221,Family,Cash
+C5222,Office worker,E-wallet
+C5223,Family,E-wallet
+C5224,Student,E-wallet
+C5225,Student,E-wallet
+C5226,Office worker,QRIS
+C5227,Student,E-wallet
+C5228,Office worker,QRIS
+C5229,Student,E-wallet
+C5230,Student,E-wallet
+C5231,Student,E-wallet
+C5232,Student,E-wallet
+C5233,Office worker,E-wallet
+C5234,Student,E-wallet
+C5235,Student,QRIS
+C5236,Student,E-wallet
+C5237,Family,QRIS
+C5238,Office worker,QRIS
+C5239,Office worker,QRIS
+C5240,Office worker,QRIS
+C5241,Office worker,QRIS
+C5242,Student,QRIS
+C5243,Student,QRIS
+C5244,Student,E-wallet
+C5245,Student,E-wallet
+C5246,Office worker,QRIS
+C5247,Student,E-wallet
+C5248,Student,QRIS
+C5249,Student,E-wallet
+C5250,Family,QRIS
+C5251,Office worker,QRIS
+C5252,Office worker,E-wallet
+C5253,Family,E-wallet
+C5254,Student,QRIS
+C5255,Office worker,QRIS
+C5256,Office worker,QRIS
+C5257,Student,QRIS
+C5258,Family,E-wallet
+C5259,Office worker,E-wallet
+C5260,Family,E-wallet
+C5261,Office worker,QRIS
+C5262,Office worker,QRIS
+C5263,Student,QRIS
+C5264,Office worker,QRIS
+C5265,Office worker,Cash
+C5266,Office worker,QRIS
+C5267,Student,E-wallet
+C5268,Family,QRIS
+C5269,Office worker,QRIS
+C5270,Office worker,QRIS
+C5271,Student,QRIS
+C5272,Student,QRIS
+C5273,Student,E-wallet
+C5274,Student,E-wallet
+C5275,Office worker,Cash
+C5276,Office worker,E-wallet
+C5277,Student,E-wallet
+C5278,Family,Cash
+C5279,Student,QRIS
+C5280,Office worker,Cash
+C5281,Office worker,E-wallet
+C5282,Student,QRIS
+C5283,Student,QRIS
+C5284,Student,E-wallet
+C5285,Student,E-wallet
+C5286,Family,QRIS
+C5287,Student,E-wallet
+C5288,Student,E-wallet
+C5289,Office worker,E-wallet
+C5290,Office worker,E-wallet
+C5291,Student,QRIS
+C5292,Family,E-wallet
+C5293,Student,E-wallet
+C5294,Student,QRIS
+C5295,Student,QRIS
+C5296,Family,E-wallet
+C5297,Student,E-wallet
+C5298,Office worker,Cash
+C5299,Office worker,QRIS
+C5300,Office worker,QRIS
