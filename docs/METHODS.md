@@ -76,6 +76,42 @@ Golden-tested against numpy/scipy (`tests/golden/descriptive.json`) at 1e-6 rela
 - Mean: n = (z·σ/E)²; proportion: n = z²·p(1 − p)/E²; always rounded **up** (after removing
   floating-point noise at 1e-9), then multiplied by the number of groups.
 
-## Statistical tests
+## Hypothesis tests (Milestones 3–4) — `src/stats/tests.ts`, `anova.ts`, `chisquare.ts`
 
-Added from Milestone 3 onwards.
+Golden-tested against scipy/statsmodels (`tests/golden/tests.json`, `groups.json`). The smoke test
+from CLAUDE.md (pilot file, GoFood − Walk-in) is an explicit test case and passes.
+
+**Common.** α = 0.01 / 0.05 / 0.10. "greater" means first > second (x̄ > μ₀, p̂ > p₀, group 1 >
+group 2, d̄ > 0). p-values are taken from the lower tail at −|statistic| (and from the upper
+incomplete beta/gamma for F and χ²) so very small p-values stay accurate. Confidence intervals
+are always two-sided at 1 − α. Decision: reject H₀ when p < α.
+
+- **One-sample t**: t = (x̄ − μ₀)/(s/√n), df = n − 1.
+- **One-proportion z**: z = (p̂ − p₀)/√(p₀(1 − p₀)/n) (SE uses p₀); Wald CI with √(p̂(1 − p̂)/n);
+  condition n·p₀ ≥ 5 and n·(1 − p₀) ≥ 5. Matches statsmodels `proportions_ztest(prop_var=p0)`.
+- **Welch t**: t = (x̄₁ − x̄₂)/√(s₁²/n₁ + s₂²/n₂), Welch–Satterthwaite df (fractional) = Excel
+  `T.TEST` type 3. Only the Welch row is reported. Note: the Excel Analysis ToolPak "t-Test:
+  Two-Sample Assuming Unequal Variances" rounds df to an integer, so its p-value can differ slightly
+  from `T.TEST` and from this app (to be confirmed in Excel by Lazuardi — Excel is not available to
+  the build).
+- **Paired t**: d = right-hand column − left-hand column (swap button reverses); t = d̄/(s_d/√n),
+  df = n − 1 (Excel `T.TEST` type 1). Rows missing either value are dropped and counted.
+- **Two-proportion z**: pooled p̄ = (x₁ + x₂)/(n₁ + n₂), z = (p̂₁ − p̂₂)/√(p̄(1 − p̄)(1/n₁ + 1/n₂));
+  unpooled Wald CI for p₁ − p₂; condition ≥ 5 successes and ≥ 5 failures per group. Matches
+  statsmodels `proportions_ztest`. For a 2 × 2 table z² = χ² (no Yates), shown as a note.
+- **One-way ANOVA**: SS between = Σ nᵢ(x̄ᵢ − x̄)², SS within = ΣΣ(x − x̄ᵢ)², df k − 1 and N − k,
+  F = MS between / MS within, p = P(F > f), F crit at 1 − α. Layout of Excel's "ANOVA: Single Factor".
+- **Levene** (assumption panel): one-way ANOVA on |x − x̄ᵢ| (mean-centred, scipy `center='mean'`).
+- **Tukey–Kramer HSD** (decided 2026-10-15): SE = √(MS within/2 · (1/nᵢ + 1/nⱼ)), q = |x̄ᵢ − x̄ⱼ|/SE,
+  p = 1 − P_tukey(q; k, N − k), simultaneous CI diff ± q(1 − α; k, N − k)·SE. Matches
+  `scipy.stats.tukey_hsd`. Exception to the tolerance rule: p-values below 1e-6 come from 1 − CDF and
+  are accurate to about 1e-8 absolute only; they always display as "< .001".
+- **Chi-square independence**: E = row total × column total / N, X² = Σ(O − E)²/E,
+  df = (r − 1)(c − 1), **no Yates correction** (Excel `CHISQ.TEST`, scipy `correction=False`);
+  cells with E < 5 are listed.
+- **Chi-square goodness of fit**: expected shares entered in %, normalised to sum to 1 (so 33.33 ×
+  3 works); E = share × n, df = k − 1.
+- **F and χ² charts**: density with the observed statistic marked, the area to its right (p)
+  shaded and the critical value dashed.
+- **Ordinal variables** are refused (with a note) where the rule needs a nominal variable: as the
+  grouping variable and in two-categorical tests. One categorical variable alone may be ordinal.

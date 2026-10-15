@@ -11,7 +11,7 @@ export function ChartSection(props: {
   heading: string;
   /** Base for downloaded file names. */
   fileBase: string;
-  options: ComponentChildren;
+  options?: ComponentChildren;
   children: ComponentChildren;
   /** Extra lines under the chart (e.g. the Shapiro–Wilk line); also added to the report. */
   footer?: string[];
@@ -49,8 +49,8 @@ export function ChartSection(props: {
   return (
     <section class="chart-section">
       <h3 class="result-title">{props.title}</h3>
-      <div class="chart-layout">
-        <div class="chart-options">{props.options}</div>
+      <div class={`chart-layout${props.options ? '' : ' single'}`}>
+        {props.options && <div class="chart-options">{props.options}</div>}
         <div class="chart-main">
           <div class="result-toolbar chart-toolbar">
             <span class="muted">{t('chart.download')}</span>

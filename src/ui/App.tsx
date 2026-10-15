@@ -24,6 +24,7 @@ import { copyRich } from './table';
 import { ComingSoon } from './sections/ComingSoon';
 import { Describe } from './sections/Describe';
 import { SampleSize } from './sections/SampleSize';
+import { Tests } from './sections/tests/Tests';
 import { FmtContext, makeFmt } from './fmt';
 import { DataGrid, DataWarnings, GridFooter, type GridOp } from './shell/DataGrid';
 import { DataToolbar } from './shell/DataToolbar';
@@ -357,6 +358,14 @@ export function App() {
                   onAdd={addToReport}
                 />
               )
+            ) : route === 'tests' ? (
+              <Tests
+                dataset={dataset}
+                selected={liveSelection('tests')}
+                warnings={warnings}
+                isMissing={isMissing}
+                onAdd={addToReport}
+              />
             ) : route === 'sample-size' ? (
               <SampleSize onAdd={addToReport} />
             ) : (
