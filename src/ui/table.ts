@@ -25,10 +25,13 @@ export function tableToHtml(t: ResultTable): string {
   return `<table class="result"><thead>${head}</thead><tbody>${body}</tbody></table>`;
 }
 
-/** Put HTML and plain text on the clipboard, so Word and Excel paste a real table. */
-export async function copyRich(html: string, text: string): Promise<boolean> {
+/**
+ * Put text (and optionally HTML, so Word and Excel paste a real table) on the clipboard.
+ * Falls back to the older copy command where the browser blocks the Clipboard API.
+ */
+export async function copyRich(html: string | null, text: string): Promise<boolean> {
   try {
-    if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
+    if (html && typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
       await navigator.clipboard.write([
         new ClipboardItem({
           'text/html': new Blob([html], { type: 'text/html' }),
@@ -40,6 +43,23 @@ export async function copyRich(html: string, text: string): Promise<boolean> {
     await navigator.clipboard.writeText(text);
     return true;
   } catch {
+    return legacyCopy(html, text);
+  }
+}
+
+function legacyCopy(html: string | null, text: string): boolean {
+  const onCopy = (e: ClipboardEvent) => {
+    e.clipboardData?.setData('text/plain', text);
+    if (html) e.clipboardData?.setData('text/html', html);
+    e.preventDefault();
+    e.stopImmediatePropagation(); // keep the grid's own copy handler out of it
+  };
+  document.addEventListener('copy', onCopy, true);
+  try {
+    return document.execCommand('copy');
+  } catch {
     return false;
+  } finally {
+    document.removeEventListener('copy', onCopy, true);
   }
 }

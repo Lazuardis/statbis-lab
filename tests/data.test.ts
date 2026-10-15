@@ -1,10 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { buildDataset, redetect, uniqueNames, warningsFor } from '../src/data/dataset';
+import { buildDataset, redetect, warningsFor } from '../src/data/dataset';
 import { detectColumn } from '../src/data/detect';
 import { canonicalCell, fingerprint } from '../src/data/fingerprint';
 import { DEFAULT_INVALID_CODES, makeIsMissing } from '../src/data/missing';
 import { parseNumber, splitDelimited } from '../src/data/parse';
+import type { DecimalSetting } from '../src/data/types';
 
 const golden = JSON.parse(readFileSync(new URL('./golden/fingerprint.json', import.meta.url), 'utf8')) as {
   name: string;
@@ -13,7 +14,17 @@ const golden = JSON.parse(readFileSync(new URL('./golden/fingerprint.json', impo
 }[];
 const pilotCsv = readFileSync(new URL('../C3_basket_by_channel.csv', import.meta.url), 'utf8');
 const isMissing = makeIsMissing(DEFAULT_INVALID_CODES);
-const opts = { name: 'test', invalidCodes: DEFAULT_INVALID_CODES, decimal: 'auto' as const };
+const opts: { name: string; invalidCodes: readonly string[]; decimal: DecimalSetting } = {
+  name: 'test',
+  invalidCodes: DEFAULT_INVALID_CODES,
+  decimal: 'auto',
+};
+
+function build(text: string, extra: Partial<typeof opts> & { delimiter?: string } = {}) {
+  const r = buildDataset(text, { ...opts, ...extra });
+  if (!r.ok) throw new Error(r.error);
+  return r;
+}
 
 describe('splitDelimited', () => {
   it('reads Excel clipboard text: CRLF, trailing newline, trims cells', () => {
@@ -93,68 +104,57 @@ describe('fingerprint', () => {
   });
   for (const g of golden) {
     it(`matches Python: ${g.name}`, async () => {
-      const r = await buildDataset(g.text, opts);
-      expect(r.ok).toBe(true);
-      if (r.ok) expect(r.dataset.fingerprint).toBe(g.fingerprint);
+      expect(await fingerprint(build(g.text).dataset.rows)).toBe(g.fingerprint);
     });
   }
   it('pasted pilot and the pilot CSV give the same fingerprint', async () => {
-    const csv = await buildDataset(pilotCsv, { ...opts, delimiter: ',' });
-    expect(csv.ok && csv.dataset.fingerprint).toBe(golden[0]!.fingerprint);
+    expect(await fingerprint(build(pilotCsv, { delimiter: ',' }).dataset.rows)).toBe(golden[0]!.fingerprint);
   });
-  it('is unchanged by settings, renaming or level changes', async () => {
-    const a = await buildDataset(golden[0]!.text, opts);
-    const b = await buildDataset(golden[0]!.text, { ...opts, decimal: 'comma', invalidCodes: [] });
-    expect(a.ok && b.ok && a.dataset.fingerprint === b.dataset.fingerprint).toBe(true);
-    expect(await fingerprint(['x'], [['1']])).toMatch(/^[0-9a-f]{8}$/);
+  it('ignores column names and settings', async () => {
+    const renamed = golden[0]!.text.replace('Order_ID\tChannel\tBasket_value', 'id\tchannel\tbasket');
+    const a = await fingerprint(build(golden[0]!.text).dataset.rows);
+    const b = await fingerprint(build(renamed, { decimal: 'comma', invalidCodes: [] }).dataset.rows);
+    expect(b).toBe(a);
+    expect(await fingerprint([])).toBe('');
   });
 });
 
 describe('buildDataset on the pilot file', () => {
-  it('reads 80 rows × 3 columns with the expected levels and warnings', async () => {
-    const r = await buildDataset(golden[0]!.text, opts);
-    if (!r.ok) throw new Error(r.error);
-    const d = r.dataset;
+  it('reads 80 rows × 3 columns with the expected levels and warnings', () => {
+    const d = build(golden[0]!.text).dataset;
     expect(d.rows.length).toBe(80);
-    expect(d.header).toEqual(['Order_ID', 'Channel', 'Basket_value']);
+    expect(d.variables.map((v) => v.name)).toEqual(['Order_ID', 'Channel', 'Basket_value']);
     expect(d.variables.map((v) => v.level)).toEqual(['nominal', 'nominal', 'metric']);
     const w = warningsFor(d, DEFAULT_INVALID_CODES);
     expect(w.map((x) => x.idLike)).toEqual([true, false, false]);
     expect(w.map((x) => x.codedCategory)).toEqual([false, false, false]);
   });
-  it('the Indonesian-locale paste reads Basket_value as a comma-decimal metric', async () => {
-    const r = await buildDataset(golden[1]!.text, opts);
-    if (!r.ok) throw new Error(r.error);
-    expect(r.dataset.variables[2]).toMatchObject({ level: 'metric', decimal: 'comma' });
+  it('the Indonesian-locale paste reads Basket_value as a comma-decimal metric', () => {
+    expect(build(golden[1]!.text).dataset.variables[2]).toMatchObject({ level: 'metric', decimal: 'comma' });
   });
 });
 
 describe('buildDataset edge cases', () => {
-  it('rejects empty text and a header with no rows', async () => {
-    expect(await buildDataset('  \r\n', opts)).toEqual({ ok: false, error: 'empty' });
-    expect(await buildDataset('a\tb\r\n', opts)).toEqual({ ok: false, error: 'noRows' });
+  it('rejects empty text and a header with no rows', () => {
+    expect(buildDataset('  \r\n', opts)).toEqual({ ok: false, error: 'empty' });
+    expect(buildDataset('a\tb\r\n', opts)).toEqual({ ok: false, error: 'noRows' });
   });
-  it('flags a header row that looks like data', async () => {
-    const r = await buildDataset('1\t2\n3\t4', opts);
-    expect(r.ok && r.headerLooksNumeric).toBe(true);
+  it('flags a header row that looks like data', () => {
+    expect(build('1\t2\n3\t4').headerLooksNumeric).toBe(true);
   });
   it('names blank and repeated headers', () => {
-    expect(uniqueNames(['', 'x', 'X', 'x'])).toEqual(['Var1', 'x', 'X_2', 'x_3']);
+    const d = build('\tx\tX\tx\n1\t2\t3\t4').dataset;
+    expect(d.variables.map((v) => v.name)).toEqual(['Var1', 'x', 'X_2', 'x_3']);
+    expect(d.variables[0]!.autoName).toBe(true);
   });
-  it('warns about coded categories', async () => {
-    const r = await buildDataset('code\n1\n2\n3\n1\n2\n3', opts);
-    if (!r.ok) throw new Error(r.error);
-    expect(warningsFor(r.dataset, DEFAULT_INVALID_CODES)[0]!.codedCategory).toBe(true);
+  it('warns about coded categories', () => {
+    const d = build('code\n1\n2\n3\n1\n2\n3').dataset;
+    expect(warningsFor(d, DEFAULT_INVALID_CODES)[0]!.codedCategory).toBe(true);
   });
-  it('redetect keeps levels the user chose and re-reads the rest', async () => {
-    const r = await buildDataset('a\tb\n12,5\t1,5\n3\t2', { ...opts, decimal: 'point' });
-    if (!r.ok) throw new Error(r.error);
-    expect(r.dataset.variables.map((v) => v.level)).toEqual(['nominal', 'nominal']);
-    const userSet = {
-      ...r.dataset,
-      variables: r.dataset.variables.map((v, j) => (j === 1 ? { ...v, levelSetByUser: true } : v)),
-    };
-    const again = redetect(userSet, DEFAULT_INVALID_CODES, 'auto');
-    expect(again.variables.map((v) => v.level)).toEqual(['metric', 'nominal']);
+  it('redetect keeps levels the user chose and re-reads the rest', () => {
+    const d = build('a\tb\n12,5\t1,5\n3\t2', { decimal: 'point' }).dataset;
+    expect(d.variables.map((v) => v.level)).toEqual(['nominal', 'nominal']);
+    const userSet = { ...d, variables: d.variables.map((v, j) => (j === 1 ? { ...v, levelSetByUser: true } : v)) };
+    expect(redetect(userSet, DEFAULT_INVALID_CODES, 'auto').variables.map((v) => v.level)).toEqual(['metric', 'nominal']);
   });
 });

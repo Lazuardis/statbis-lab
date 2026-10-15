@@ -15,7 +15,7 @@ export function ResultBlock(props: {
   table: ResultTable;
   /** Templated paragraphs (already filled with live values). */
   interpretation?: string[];
-  onAdd: (item: Omit<ReportItem, 'id'>) => void;
+  onAdd: (item: Omit<ReportItem, 'id' | 'fingerprint'>) => void;
 }) {
   const t = useT();
   const [showInterp, setShowInterp] = useState(false);

@@ -14,15 +14,23 @@ under "Ask first" at the end of this file.
 - **Name** "Statbis Lab" stays. **Brand accent** `#0F6B6B` plus tints/shades derived from it.
 - **Hosting**: Vercel, set up by Lazuardi himself. The repository is local only; no GitHub repo, no
   GitHub Pages, no deployment workflow. Asset paths must be relative so any static host works.
-- **Data entry is paste only** in this version: no Import dialog, no CSV/XLSX file reading, no
-  papaparse or SheetJS. The grid is a read-only spreadsheet viewer (like Numiqo or Minitab).
-  Toolbar: *New data · Example data ▾ · Settings*. Because there is no file name, the data has an
-  editable name under the grid (default "Pasted data"; example name for examples); the report uses it.
-- **Fingerprint** is computed over the pasted cells, each canonicalised: trimmed; a cell that reads
-  as a number with a point (`12.5`) or a single decimal comma (`12,5`) is written as the shortest
-  round-trip number (`12.5`); anything else stays as trimmed text. Line endings normalised, trailing
-  blank rows and columns dropped. This makes the same sheet give the same fingerprint on English-
-  and Indonesian-locale Excel. Settings do not affect it.
+- **Data entry is paste or typing** in this version: no Import dialog, no CSV/XLSX file reading, no
+  papaparse or SheetJS. Toolbar: *New data · Example data ▾ · Copy data · Settings*. Because there
+  is no file name, the data has an editable name under the grid (default "My data"; example name
+  for examples); the report uses it.
+- **The grid is an editable spreadsheet** (decided 2026-10-15; replaces non-negotiable 7). Click a
+  cell and type, paste a block into any cell, Delete clears, Tab/Enter/arrows move, Ctrl+Z/Ctrl+Y
+  undo/redo, right-click to insert or delete rows and columns. The first grid row holds the
+  variable names. New data, pasted data and example data are all editable. Nothing is saved, so:
+  *Copy data* puts the whole table on the clipboard for Excel/Sheets, and the page warns before
+  closing while there are edits that have not been copied. No file export.
+- **Fingerprint** is computed over the current data values (not the column names), recomputed after
+  every edit. Each cell is canonicalised: trimmed; a cell that reads as a number with a point
+  (`12.5`) or a single decimal comma (`12,5`) is written as the shortest round-trip number (`12.5`);
+  anything else stays as trimmed text. Trailing blank rows and columns are dropped. The same sheet
+  gives the same fingerprint on English- and Indonesian-locale Excel. Settings and renaming do not
+  affect it. Each report item records the fingerprint it was made with; items made before a later
+  edit say so in the report.
 - **Ordinal** is not silently treated as nominal. It is accepted only where a rule says
   "nominal/ordinal"; elsewhere the student must decide and change the level.
 - **Decimal separator**: Auto reads each column on its own (comma-decimal column if it has

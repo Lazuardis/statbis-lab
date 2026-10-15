@@ -283,6 +283,10 @@ a {
 
 /* ---------- data grid ---------- */
 
+.grid-wrap {
+  position: relative;
+}
+
 .grid-frame {
   position: relative;
   height: calc(var(--row-h) * 15 + 58px);
@@ -293,10 +297,32 @@ a {
   overscroll-behavior: contain;
 }
 
+.grid-frame.active:focus-within {
+  border-color: var(--accent-line);
+}
+
+.grid-sink {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.grid-frame:focus-within {
+  outline: none;
+}
+
 .grid {
+  table-layout: fixed;
   border-collapse: separate;
   border-spacing: 0;
-  min-width: 100%;
+  user-select: none;
+  -webkit-user-select: none;
   font-size: 14px;
   font-variant-numeric: tabular-nums;
 }
@@ -309,10 +335,52 @@ a {
   border-bottom: 1px solid var(--rule);
   white-space: nowrap;
   text-align: left;
-  min-width: 112px;
-  max-width: 240px;
   overflow: hidden;
   text-overflow: ellipsis;
+  cursor: cell;
+}
+
+.grid td.sel,
+.grid .grid-names th.sel {
+  background: var(--accent-soft);
+}
+
+.grid td.focus,
+.grid .grid-names th.focus {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.grid td.editing,
+.grid th.editing {
+  position: relative;
+  padding: 0;
+  overflow: visible;
+}
+
+.cell-input {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  padding: 0 7px;
+  border: 2px solid var(--accent);
+  background: var(--bg);
+  font-size: 14px;
+  font-weight: inherit;
+  text-align: inherit;
+  outline: none;
+  box-shadow: 0 2px 8px rgb(15 107 107 / 0.18);
+}
+
+.auto-name {
+  color: var(--rule-strong);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.grid tr.spare th.case-col {
+  color: var(--rule-strong);
 }
 
 .grid td.num,
@@ -340,6 +408,7 @@ a {
 
 .grid .grid-names th {
   top: 29px;
+  height: 29px;
   font-weight: 700;
   border-bottom-color: var(--rule-strong);
 }
@@ -348,21 +417,26 @@ a {
   position: sticky;
   left: 0;
   z-index: 1;
-  min-width: 56px;
-  width: 56px;
   background: var(--grid-head);
   color: var(--muted);
   font-weight: 400;
   text-align: center;
+  cursor: e-resize;
+}
+
+.grid .case-col.sel {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.grid .case-col.corner {
+  cursor: pointer;
 }
 
 .grid thead .case-col {
   z-index: 3;
 }
 
-.grid .filler {
-  min-width: 112px;
-}
 
 .level-label {
   display: inline-flex;
@@ -399,48 +473,76 @@ a {
   color: var(--warn);
 }
 
-.grid-empty {
-  display: grid;
-  place-items: center;
-  border-style: dashed;
-  border-color: var(--accent-line);
-  background: var(--accent-wash);
-  overflow: hidden;
-}
-
-.paste-zone {
+.grid-empty-hint {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background: transparent;
-  color: transparent;
-  resize: none;
-  cursor: pointer;
-  caret-color: transparent;
-}
-
-.paste-zone:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
-}
-
-.paste-hint {
-  max-width: 560px;
-  padding: 24px;
+  top: 96px;
+  left: 50%;
+  width: min(560px, calc(100% - 32px));
+  padding: 18px 24px;
+  transform: translateX(-50%);
+  border: 1px dashed var(--accent-line);
+  border-radius: 8px;
+  background: rgb(242 248 248 / 0.94);
   text-align: center;
   pointer-events: none;
 }
 
-.paste-hint p {
-  margin: 0 0 10px;
+.grid-empty-hint p {
+  margin: 0 0 8px;
+}
+
+.grid-empty-hint p:last-child {
+  margin-bottom: 0;
 }
 
 .paste-hint-title {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--accent-strong);
+}
+
+.grid-menu {
+  position: fixed;
+  z-index: 50;
+  min-width: 230px;
+  margin: 0;
+  padding: 5px 0;
+  list-style: none;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--bg);
+  box-shadow: 0 8px 24px rgb(31 41 51 / 0.16);
+  font-size: 14.5px;
+}
+
+.grid-menu li.sep {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--rule);
+}
+
+.grid-menu button {
+  display: block;
+  width: 100%;
+  padding: 5px 14px;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.grid-menu button:hover:not(:disabled) {
+  background: var(--accent-wash);
+}
+
+.grid-menu button:disabled {
+  color: var(--rule-strong);
+  cursor: default;
+}
+
+.unsaved-note {
+  margin: 8px 0 0;
+  color: var(--warn);
 }
 
 .grid-footer {
@@ -954,10 +1056,6 @@ table.result .num {
     height: calc(var(--row-h) * 12 + 58px);
   }
 
-  .grid th,
-  .grid td {
-    min-width: 88px;
-  }
 
   .report-fab {
     right: 16px;

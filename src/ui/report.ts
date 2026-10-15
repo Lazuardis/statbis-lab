@@ -10,6 +10,8 @@ export interface ReportItem {
   html: string;
   /** Plain-text version for Copy all. */
   text: string;
+  /** Dataset fingerprint when the item was added. */
+  fingerprint: string;
 }
 
 export interface ReportMeta {
@@ -24,6 +26,8 @@ export interface ReportMeta {
   fingerprintLabel: string;
   fingerprint: string;
   reportTitle: string;
+  /** Shown under items made before a later edit; contains {fingerprint}. */
+  staleTemplate: string;
   lang: string;
 }
 
@@ -50,7 +54,11 @@ export function metaBlockHtml(m: ReportMeta): string {
 }
 
 /** Items grouped under their analysis heading, in the order they were added. */
-export function itemsHtml(items: readonly ReportItem[]): string {
+function staleNote(m: ReportMeta, it: ReportItem): string | null {
+  return it.fingerprint !== m.fingerprint ? m.staleTemplate.replace('{fingerprint}', it.fingerprint) : null;
+}
+
+export function itemsHtml(items: readonly ReportItem[], m: ReportMeta): string {
   let out = '';
   let last = '';
   for (const it of items) {
@@ -58,7 +66,11 @@ export function itemsHtml(items: readonly ReportItem[]): string {
       out += `<h2>${escapeHtml(it.heading)}</h2>`;
       last = it.heading;
     }
-    out += `<section class="report-item"><h3>${escapeHtml(it.title)}</h3>${it.html}</section>`;
+    const note = staleNote(m, it);
+    out +=
+      `<section class="report-item"><h3>${escapeHtml(it.title)}</h3>` +
+      (note ? `<p class="stale-note">${escapeHtml(note)}</p>` : '') +
+      `${it.html}</section>`;
   }
   return out;
 }
@@ -78,7 +90,8 @@ export function itemsText(m: ReportMeta, items: readonly ReportItem[]): string {
       out += `\n\n${it.heading}`;
       last = it.heading;
     }
-    out += `\n\n${it.title}\n${it.text}`;
+    const note = staleNote(m, it);
+    out += `\n\n${it.title}\n${note ? `${note}\n` : ''}${it.text}`;
   }
   return out;
 }
@@ -100,6 +113,7 @@ export const REPORT_CSS = `
 .report-doc table.result .num{text-align:right;font-variant-numeric:tabular-nums}
 .report-doc .interpretation{max-width:46em;margin:8px 0}
 .report-doc .interpretation p{margin:0 0 8px}
+.report-doc .stale-note{margin:0 0 6px;padding:4px 10px;border-left:3px solid #9A6200;background:#FFF6E0;color:#6B4400;font-size:13.5px}
 `;
 
 export function standaloneHtml(m: ReportMeta, items: readonly ReportItem[]): string {
@@ -120,7 +134,7 @@ ${REPORT_CSS}
 <main class="report-doc">
 <h1>${escapeHtml(m.reportTitle)}</h1>
 ${metaBlockHtml(m)}
-${itemsHtml(items)}
+${itemsHtml(items, m)}
 </main>
 </body>
 </html>

@@ -1,14 +1,29 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { buildDataset, column, redetect, warningsFor } from '../data/dataset';
+import {
+  clearRange,
+  datasetToTsv,
+  deleteColumns,
+  deleteRows,
+  emptyDataset,
+  insertColumns,
+  insertRows,
+  isUnusedColumn,
+  setCells,
+  updateVariable,
+  type EditContext,
+} from '../data/edit';
 import { EXAMPLES } from '../data/examples';
+import { fingerprint } from '../data/fingerprint';
 import { DEFAULT_INVALID_CODES, makeIsMissing } from '../data/missing';
-import type { Dataset, Variable } from '../data/types';
+import type { Dataset } from '../data/types';
 import { LangContext, translate, type Lang, type MessageKey, type Vars } from '../i18n/i18n';
 import { loadPrefs, savePrefs, type Prefs } from './prefs';
 import type { ReportItem, ReportMeta } from './report';
+import { copyRich } from './table';
 import { ComingSoon } from './sections/ComingSoon';
 import { DevDemo } from './sections/DevDemo';
-import { DataGrid, DataWarnings, GridFooter } from './shell/DataGrid';
+import { DataGrid, DataWarnings, GridFooter, type GridOp } from './shell/DataGrid';
 import { DataToolbar } from './shell/DataToolbar';
 import { Header } from './shell/Header';
 import { ConfirmDialog } from './shell/Modal';
@@ -22,6 +37,7 @@ import { RegressionPicker, VariablePicker, type RegressionSelection } from './sh
 type PickerTab = 'describe' | 'tests' | 'correlation';
 const NO_SELECTION: Record<PickerTab, string[]> = { describe: [], tests: [], correlation: [] };
 const NO_REGRESSION: RegressionSelection = { dependent: null, independent: null };
+const HISTORY_LIMIT = 200;
 
 interface ConfirmRequest {
   title: string;
@@ -35,11 +51,20 @@ interface Notice {
   text: string;
 }
 
+const isEmptyDataset = (d: Dataset) => d.rows.length === 0 && d.variables.length === 0;
+
 export function App() {
   const [prefs, setPrefsState] = useState<Prefs>(loadPrefs);
   const [invalidCodes, setInvalidCodes] = useState<string[]>([...DEFAULT_INVALID_CODES]);
-  const [dataset, setDataset] = useState<Dataset | null>(null);
+  const [dataset, setDataset] = useState<Dataset>(() => emptyDataset(translate(prefs.lang, 'grid.defaultName')));
+  const [fp, setFp] = useState('');
   const [headerLooksNumeric, setHeaderLooksNumeric] = useState(false);
+  /** Grid edits that have not been copied out with Copy data. */
+  const [edited, setEdited] = useState(false);
+  const [gridKey, setGridKey] = useState(0);
+  const [focusGrid, setFocusGrid] = useState(false);
+  const past = useRef<Dataset[]>([]);
+  const future = useRef<Dataset[]>([]);
   const [selected, setSelected] = useState(NO_SELECTION);
   const [regression, setRegression] = useState(NO_REGRESSION);
   const [report, setReport] = useState<ReportItem[]>([]);
@@ -53,8 +78,10 @@ export function App() {
 
   const lang = prefs.lang;
   const t = (key: MessageKey, vars?: Vars) => translate(lang, key, vars);
+  const ctx: EditContext = { invalidCodes, decimal: prefs.decimal };
   const isMissing = useMemo(() => makeIsMissing(invalidCodes), [invalidCodes]);
-  const warnings = useMemo(() => (dataset ? warningsFor(dataset, invalidCodes) : []), [dataset, invalidCodes]);
+  const warnings = useMemo(() => warningsFor(dataset, invalidCodes), [dataset, invalidCodes]);
+  const empty = isEmptyDataset(dataset);
 
   const setPrefs = (p: Prefs) => {
     setPrefsState(p);
@@ -65,62 +92,125 @@ export function App() {
     document.documentElement.lang = lang;
   }, [lang]);
 
-  // Success messages fade after a few seconds so the tabs stay in view; errors stay until closed.
+  // The fingerprint follows the data: recomputed shortly after every change.
+  useEffect(() => {
+    let alive = true;
+    const timer = setTimeout(() => {
+      void fingerprint(dataset.rows).then((v) => alive && setFp(v));
+    }, 150);
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+    };
+  }, [dataset.rows]);
+
+  // Success messages fade after a few seconds; errors stay until closed.
   useEffect(() => {
     if (notice?.kind !== 'info') return;
-    const timer = setTimeout(() => setNotice(null), 4000);
+    const timer = setTimeout(() => setNotice(null), 5000);
     return () => clearTimeout(timer);
   }, [notice]);
 
-  // Warn before the page is closed or reloaded while the report has content.
+  // Warn before the page is closed or reloaded while there is something to lose.
   useEffect(() => {
-    if (report.length === 0) return;
+    if (report.length === 0 && !edited) return;
     const on = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = '';
     };
     window.addEventListener('beforeunload', on);
     return () => window.removeEventListener('beforeunload', on);
-  }, [report.length]);
+  }, [report.length, edited]);
 
   const confirm = (title: string, body: string[], okLabel: string) =>
     new Promise<boolean>((resolve) => setConfirmReq({ title, body, okLabel, resolve }));
 
-  /** Ask before replacing or removing data; the report is cleared with it. */
+  /** Ask before replacing or removing data; uncopied edits and the report are lost with it. */
   const confirmDataChange = async (title: string, body: string, okLabel: string) => {
-    if (!dataset) return true;
+    if (empty && report.length === 0) return true;
     const lines = [body];
+    if (edited) lines.push(t('confirm.editsLost'));
     if (report.length > 0) lines.push(t('confirm.reportCleared'));
     return confirm(title, lines, okLabel);
   };
 
+  /** Start over with a new dataset (paste over the page, example, New data): no undo across it. */
+  const replaceDataset = (d: Dataset, focus: boolean) => {
+    setDataset(d);
+    past.current = [];
+    future.current = [];
+    setEdited(false);
+    setSelected(NO_SELECTION);
+    setRegression(NO_REGRESSION);
+    setReport([]);
+    setFocusGrid(focus);
+    setGridKey((k) => k + 1);
+  };
+
   const loadText = async (text: string, name: string, delimiter: string) => {
-    const result = await buildDataset(text, { name, delimiter, invalidCodes, decimal: prefs.decimal });
+    const result = buildDataset(text, { name, delimiter, ...ctx });
     if (!result.ok) {
       setNotice({ kind: 'error', text: t(result.error === 'empty' ? 'paste.empty' : 'paste.noRows') });
       return;
     }
     if (!(await confirmDataChange(t('confirm.replaceTitle'), t('confirm.replaceBody'), t('confirm.replace')))) return;
-    setDataset(result.dataset);
+    replaceDataset(result.dataset, false);
     setHeaderLooksNumeric(result.headerLooksNumeric);
-    setSelected(NO_SELECTION);
-    setRegression(NO_REGRESSION);
-    setReport([]);
-    setNotice({
-      kind: 'info',
-      text: t('paste.done', { rows: result.dataset.rows.length, cols: result.dataset.variables.length }),
-    });
+    setNotice(null);
   };
 
-  // Paste anywhere on the page (outside text fields and dialogs) loads the clipboard table.
+  /** An undoable change made in the grid or the variable dialog. */
+  const commitChange = (next: Dataset) => {
+    if (next === dataset) return;
+    past.current = [...past.current.slice(-(HISTORY_LIMIT - 1)), dataset];
+    future.current = [];
+    setDataset(next);
+    setEdited(true);
+  };
+
+  const applyOp = (op: GridOp) => {
+    switch (op.kind) {
+      case 'set':
+        return commitChange(setCells(dataset, op.r, op.c, op.block, ctx));
+      case 'clear':
+        return commitChange(clearRange(dataset, op.r0, op.c0, op.r1, op.c1, ctx));
+      case 'insertRows':
+        return commitChange(insertRows(dataset, op.at, op.count, ctx));
+      case 'deleteRows':
+        return commitChange(deleteRows(dataset, op.from, op.count, ctx));
+      case 'insertCols':
+        return commitChange(insertColumns(dataset, op.at, op.count, ctx));
+      case 'deleteCols':
+        return commitChange(deleteColumns(dataset, op.from, op.count, ctx));
+    }
+  };
+
+  const undo = () => {
+    const prev = past.current.at(-1);
+    if (!prev) return;
+    past.current = past.current.slice(0, -1);
+    future.current = [dataset, ...future.current];
+    setDataset(prev);
+    setEdited(true);
+  };
+
+  const redo = () => {
+    const next = future.current[0];
+    if (!next) return;
+    future.current = future.current.slice(1);
+    past.current = [...past.current, dataset];
+    setDataset(next);
+    setEdited(true);
+  };
+
+  // Paste outside the grid (and outside text fields and dialogs) loads the clipboard as a new table.
   const loadTextRef = useRef(loadText);
   loadTextRef.current = loadText;
   useEffect(() => {
     const onPaste = (e: ClipboardEvent) => {
       if (document.querySelector('dialog[open]')) return;
       const target = e.target as HTMLElement | null;
-      const inField = target?.closest('input, textarea, select, [contenteditable="true"]');
-      if (inField && !inField.hasAttribute('data-paste-zone')) return;
+      if (target?.closest('.grid-frame, input, textarea, select, [contenteditable="true"]')) return;
       const text = e.clipboardData?.getData('text/plain') ?? '';
       e.preventDefault();
       void loadTextRef.current(text, translate(lang, 'grid.defaultName'), '\t');
@@ -131,10 +221,8 @@ export function App() {
 
   const newData = async () => {
     if (!(await confirmDataChange(t('confirm.newTitle'), t('confirm.newBody'), t('confirm.remove')))) return;
-    setDataset(null);
-    setSelected(NO_SELECTION);
-    setRegression(NO_REGRESSION);
-    setReport([]);
+    replaceDataset(emptyDataset(t('grid.defaultName')), true);
+    setHeaderLooksNumeric(false);
     setNotice(null);
   };
 
@@ -143,12 +231,19 @@ export function App() {
     if (ex) void loadText(ex.csv, ex.key, ',');
   };
 
-  const updateVariable = (j: number, v: Variable) => {
-    if (!dataset) return;
-    setDataset({ ...dataset, variables: dataset.variables.map((old, k) => (k === j ? v : old)) });
+  const copyData = async () => {
+    if (await copyRich(null, datasetToTsv(dataset))) {
+      setEdited(false);
+      setNotice({ kind: 'info', text: t('notice.dataCopied') });
+    } else {
+      setNotice({ kind: 'error', text: t('notice.copyFailed') });
+    }
   };
 
-  const addToReport = (item: Omit<ReportItem, 'id'>) => setReport((r) => [...r, { ...item, id: nextId.current++ }]);
+  const addToReport = async (item: Omit<ReportItem, 'id' | 'fingerprint'>) => {
+    const stamp = await fingerprint(dataset.rows);
+    setReport((r) => [...r, { ...item, fingerprint: stamp, id: nextId.current++ }]);
+  };
 
   const clearReport = async () => {
     if (await confirm(t('report.clear'), [t('report.clearConfirm')], t('report.clear'))) setReport([]);
@@ -160,26 +255,44 @@ export function App() {
     createdLabel: t('report.created'),
     created: new Date(),
     dataLabel: t('report.data'),
-    dataName: dataset?.name ?? '—',
+    dataName: empty ? '—' : dataset.name,
     sizeLabel: t('report.size'),
-    size: dataset ? t('grid.size', { rows: dataset.rows.length, cols: dataset.variables.length }) : '—',
+    size: empty ? '—' : t('grid.size', { rows: dataset.rows.length, cols: dataset.variables.length }),
     fingerprintLabel: t('grid.fingerprint'),
-    fingerprint: dataset?.fingerprint ?? '—',
+    fingerprint: fp || '—',
     reportTitle: t('report.title'),
+    staleTemplate: t('report.staleNote'),
     lang,
   };
 
-  const variables = dataset?.variables ?? [];
+  // The picker lists columns that have a name or data; ids of deleted columns drop out.
+  const visible = dataset.variables
+    .map((v, j) => ({ v, w: warnings[j]!, j }))
+    .filter(({ j }) => !isUnusedColumn(dataset, j));
+  const pickerVariables = visible.map((x) => x.v);
+  const pickerWarnings = visible.map((x) => x.w);
+  const ids = new Set(pickerVariables.map((v) => v.id));
   const pickerTab: PickerTab | null =
     route === 'describe' || route === 'tests' || route === 'correlation' ? route : null;
+  const liveSelection = (tab: PickerTab) => selected[tab].filter((id) => ids.has(id));
+  const liveRegression: RegressionSelection = {
+    dependent: regression.dependent && ids.has(regression.dependent) ? regression.dependent : null,
+    independent: regression.independent && ids.has(regression.independent) ? regression.independent : null,
+  };
 
   return (
     <LangContext.Provider value={lang}>
-      <div class="page no-print-report">
+      <div class="page">
         <Header lang={lang} onLang={(l: Lang) => setPrefs({ ...prefs, lang: l })} />
 
         <main>
-          <DataToolbar onNew={newData} onExample={loadExample} onSettings={() => setSettingsOpen(true)} />
+          <DataToolbar
+            onNew={newData}
+            onExample={loadExample}
+            onCopyData={copyData}
+            canCopy={!empty}
+            onSettings={() => setSettingsOpen(true)}
+          />
 
           {notice && (
             <div class={`notice notice-${notice.kind}`} role={notice.kind === 'error' ? 'alert' : 'status'}>
@@ -191,41 +304,47 @@ export function App() {
           )}
 
           <DataGrid
+            key={gridKey}
             dataset={dataset}
             warnings={warnings}
             isMissing={isMissing}
+            autoFocus={focusGrid}
             onLevelClick={setVariableIndex}
-            onPasteBoxText={(text) => void loadText(text, t('grid.defaultName'), '\t')}
+            onOp={applyOp}
+            onUndo={undo}
+            onRedo={redo}
           />
-          {dataset && (
-            <>
-              <GridFooter dataset={dataset} onRename={(name) => setDataset({ ...dataset, name })} />
-              <DataWarnings
-                dataset={dataset}
-                warnings={warnings}
-                headerLooksNumeric={headerLooksNumeric}
-                onOpenVariable={setVariableIndex}
-              />
-            </>
-          )}
+          <GridFooter dataset={dataset} fingerprint={fp} onRename={(name) => setDataset({ ...dataset, name })} />
+          <DataWarnings
+            dataset={dataset}
+            warnings={warnings}
+            headerLooksNumeric={headerLooksNumeric}
+            onOpenVariable={setVariableIndex}
+          />
+          {edited && <p class="unsaved-note small">{t('grid.notSaved')}</p>}
 
           <Tabs route={route} />
 
           <div class="analysis">
             {pickerTab && (
               <VariablePicker
-                variables={variables}
-                warnings={warnings}
-                selected={selected[pickerTab]}
-                onChange={(ids) => setSelected({ ...selected, [pickerTab]: ids })}
+                variables={pickerVariables}
+                warnings={pickerWarnings}
+                selected={liveSelection(pickerTab)}
+                onChange={(next) => setSelected({ ...selected, [pickerTab]: next })}
               />
             )}
             {route === 'regression' && (
-              <RegressionPicker variables={variables} warnings={warnings} value={regression} onChange={setRegression} />
+              <RegressionPicker
+                variables={pickerVariables}
+                warnings={pickerWarnings}
+                value={liveRegression}
+                onChange={setRegression}
+              />
             )}
 
-            {import.meta.env.DEV && route === 'describe' && dataset ? (
-              <DevDemo dataset={dataset} selected={selected.describe} isMissing={isMissing} onAdd={addToReport} />
+            {import.meta.env.DEV && route === 'describe' && !empty ? (
+              <DevDemo dataset={dataset} selected={liveSelection('describe')} isMissing={isMissing} onAdd={addToReport} />
             ) : (
               <ComingSoon />
             )}
@@ -235,15 +354,9 @@ export function App() {
         <ReportButton count={report.length} onOpen={() => setDrawerOpen(true)} />
       </div>
 
-      <ReportDrawer
-        open={drawerOpen}
-        items={report}
-        meta={meta}
-        onClose={() => setDrawerOpen(false)}
-        onClear={clearReport}
-      />
+      <ReportDrawer open={drawerOpen} items={report} meta={meta} onClose={() => setDrawerOpen(false)} onClear={clearReport} />
 
-      {variableIndex !== null && dataset && dataset.variables[variableIndex] && (
+      {variableIndex !== null && dataset.variables[variableIndex] && (
         <VariableDialog
           variable={dataset.variables[variableIndex]}
           cells={column(dataset.rows, variableIndex)}
@@ -251,7 +364,7 @@ export function App() {
           isMissing={isMissing}
           decimalSetting={prefs.decimal}
           onSave={(v) => {
-            updateVariable(variableIndex, v);
+            commitChange(updateVariable(dataset, variableIndex, v, ctx));
             setVariableIndex(null);
           }}
           onClose={() => setVariableIndex(null)}
@@ -266,7 +379,7 @@ export function App() {
           onChange={(s) => {
             setInvalidCodes(s.invalidCodes);
             setPrefs({ ...prefs, decimal: s.decimal, places: s.places });
-            if (dataset) setDataset(redetect(dataset, s.invalidCodes, s.decimal));
+            setDataset(redetect(dataset, s.invalidCodes, s.decimal));
           }}
           onClose={() => setSettingsOpen(false)}
         />

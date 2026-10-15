@@ -36,7 +36,8 @@ def canonical_cell(cell: str) -> str:
 
 
 def fingerprint(rows: list[list[str]]) -> str:
-    text = "\n".join("\t".join(canonical_cell(c) for c in r) for r in rows)
+    """Over the data rows only (the first row holds the names and is excluded)."""
+    text = "\n".join("\t".join(canonical_cell(c) for c in r) for r in rows[1:])
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:8]
 
 

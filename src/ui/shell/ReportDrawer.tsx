@@ -84,7 +84,7 @@ export function ReportDrawer(props: {
             disabled={empty}
             onClick={() =>
               copyRich(
-                metaBlockHtml(props.meta) + itemsHtml(props.items),
+                metaBlockHtml(props.meta) + itemsHtml(props.items, props.meta),
                 itemsText(props.meta, props.items),
               )
             }
@@ -112,7 +112,7 @@ export function ReportDrawer(props: {
           {empty ? (
             <p class="muted">{t('report.empty')}</p>
           ) : (
-            <div dangerouslySetInnerHTML={{ __html: itemsHtml(props.items) }} />
+            <div dangerouslySetInnerHTML={{ __html: itemsHtml(props.items, props.meta) }} />
           )}
         </div>
       </div>

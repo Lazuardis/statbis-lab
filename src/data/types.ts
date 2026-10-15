@@ -7,9 +7,11 @@ export type DecimalSetting = 'auto' | 'comma' | 'point';
 export type ColumnDecimal = 'point' | 'comma';
 
 export interface Variable {
-  /** Stable key that survives renaming. */
+  /** Stable key that survives renaming and moving. */
   id: string;
   name: string;
+  /** True when nobody gave the column a name, so it is called Var1, Var2, … by position. */
+  autoName: boolean;
   level: Level;
   /** True once the user picked the level, so re-reading the data does not override it. */
   levelSetByUser: boolean;
@@ -22,11 +24,9 @@ export interface Variable {
 export interface Dataset {
   /** Editable label used in the report and its file name. */
   name: string;
-  /** Header row as pasted (after trimming and de-duplication). */
-  header: string[];
-  /** Data rows of trimmed cell text, all padded to header length. */
+  /** Data rows of trimmed cell text; every row has one cell per variable. */
   rows: string[][];
   variables: Variable[];
-  /** First 8 hex characters of SHA-256 over the canonical cells. */
-  fingerprint: string;
+  /** Counter for new variable ids. */
+  nextVarId: number;
 }

@@ -6,6 +6,8 @@ import { ChevronIcon, LocalIcon } from './icons';
 export function DataToolbar(props: {
   onNew: () => void;
   onExample: (key: string) => void;
+  onCopyData: () => void;
+  canCopy: boolean;
   onSettings: () => void;
 }) {
   const t = useT();
@@ -16,6 +18,9 @@ export function DataToolbar(props: {
           {t('toolbar.newData')}
         </button>
         <ExampleMenu onPick={props.onExample} />
+        <button type="button" class="link-btn" disabled={!props.canCopy} onClick={props.onCopyData}>
+          {t('toolbar.copyData')}
+        </button>
         <button type="button" class="link-btn" onClick={props.onSettings}>
           {t('toolbar.settings')}
         </button>

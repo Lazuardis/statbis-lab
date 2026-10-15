@@ -1,13 +1,11 @@
 {
   "app.name": "Statbis Lab",
   "header.language": "Bahasa",
-
   "toolbar.newData": "Data baru",
   "toolbar.examples": "Contoh data",
   "toolbar.settings": "Pengaturan",
   "toolbar.privacy": "Data Anda tidak keluar dari browser ini",
   "toolbar.privacyHelp": "Data yang Anda tempel tidak diunggah dan tidak disimpan. Menutup atau memuat ulang halaman akan menghapusnya.",
-
   "examples.ex01_describe_delivery": "Waktu antar — statistik deskriptif dan grafik",
   "examples.ex02_ci_basket": "Nilai belanja dan voucher — selang kepercayaan",
   "examples.ex03_onesample_waiting": "Waktu tunggu terhadap target — uji satu sampel",
@@ -17,36 +15,28 @@
   "examples.ex07_anova_outlets": "Waktu antar di empat outlet — ANOVA satu arah",
   "examples.ex08_chisq_segment": "Segmen pelanggan dan cara bayar — chi-square",
   "examples.ex09_regression_promo": "Biaya promo dan jumlah pesanan — korelasi dan regresi",
-
   "grid.case": "No.",
   "grid.levelButton": "{level} — klik untuk mengubah nama, skala, atau satuan {name}",
-  "grid.emptyTitle": "Tempel data Anda di sini",
-  "grid.emptyHelp": "Di Excel atau Google Sheets, blok tabel Anda beserta nama variabel di baris pertama, lalu salin (Ctrl+C). Setelah itu klik kotak ini dan tekan Ctrl+V.",
+  "grid.emptyTitle": "Ketik atau tempel data Anda",
+  "grid.emptyHelp": "Ketik nama variabel di baris pertama dan datanya di bawahnya. Atau salin tabel dari Excel atau Google Sheets (nama variabel di baris pertama), klik sel pertama, lalu tekan Ctrl+V.",
   "grid.emptyExamples": "Belum punya data? Buka Contoh data.",
-  "grid.pasteBoxLabel": "Kotak untuk menempel data",
   "grid.size": "{rows} baris × {cols} kolom",
   "grid.fingerprint": "Sidik data",
   "grid.fingerprintHelp": "Kode yang dihitung dari nilai-nilai yang ditempel. Data yang sama selalu menghasilkan kode yang sama, sehingga asisten yang menempel sheet Anda dapat memastikan laporan Anda berasal dari data itu. Mengganti nama variabel tidak mengubah kode ini.",
-  "grid.defaultName": "Data tempelan",
+  "grid.defaultName": "Data saya",
   "grid.rename": "Ganti nama",
   "grid.nameLabel": "Nama data",
   "grid.decimalComma": "Dibaca dengan koma desimal: {names}",
-  "grid.pasteHint": "Untuk mengganti data, salin tabel baru lalu tekan Ctrl+V di mana saja pada halaman ini.",
-
   "level.metric": "metrik",
   "level.ordinal": "ordinal",
   "level.nominal": "nominal",
-
   "warn.headerNumeric": "Baris pertama berisi angka, tetapi dipakai sebagai nama variabel. Jika tabel Anda tidak punya baris nama, tambahkan di Excel lalu tempel ulang.",
   "warn.coded": "{name}: apakah ini kode kategori (1 = Laki-laki, 2 = Perempuan)? Ubah menjadi nominal di dialog variabel.",
   "warn.id": "Tampaknya ini kolom ID; tidak bisa dipakai sebagai variabel pengelompok.",
   "warn.codedShort": "Apakah ini kode kategori? Klik label skala di tabel untuk mengubahnya menjadi nominal.",
   "warn.nonNumeric": "{name}: {count} sel bukan angka dan dihitung sebagai data hilang.",
-
   "paste.empty": "Clipboard tidak berisi tabel. Salin dulu sel dari Excel atau Google Sheets.",
   "paste.noRows": "Hanya satu baris yang ditempel. Baris pertama harus berisi nama variabel, dan baris di bawahnya berisi data.",
-  "paste.done": "{rows} baris × {cols} kolom berhasil ditempel.",
-
   "confirm.replaceTitle": "Ganti data saat ini?",
   "confirm.replaceBody": "Data di tabel akan diganti dengan tabel yang baru.",
   "confirm.newTitle": "Mulai dengan data kosong?",
@@ -54,11 +44,9 @@
   "confirm.reportCleared": "Semua isi laporan juga akan dikosongkan. Unduh atau cetak dulu jika masih diperlukan.",
   "confirm.replace": "Ganti",
   "confirm.remove": "Hapus",
-
   "common.ok": "OK",
   "common.cancel": "Batal",
   "common.close": "Tutup",
-
   "variable.title": "Variabel",
   "variable.name": "Nama",
   "variable.level": "Skala pengukuran",
@@ -67,10 +55,8 @@
   "variable.unitPlaceholder": "mis. Rp ribu, menit",
   "variable.ratio": "Skala rasio (memiliki nol mutlak)",
   "variable.ratioHelp": "Diperlukan untuk koefisien variasi (CV).",
-  "variable.readOnly": "Nilai data tidak bisa diubah di aplikasi. Untuk memperbaiki data, koreksi di Excel lalu tempel ulang.",
   "variable.nameEmpty": "Isi nama variabel.",
   "variable.nameTaken": "Nama ini sudah dipakai variabel lain.",
-
   "settings.title": "Pengaturan",
   "settings.invalid": "Nilai tidak valid",
   "settings.invalidHelp": "Sel yang berisi salah satu kode ini dihitung sebagai data hilang, begitu pula sel kosong. Satu kode per baris. Daftar ini kembali ke awal saat halaman dimuat ulang.",
@@ -82,14 +68,12 @@
   "settings.decimalHelp": "Otomatis membaca setiap kolom sesuai cara penulisannya, dan menampilkan hasil dengan koma dalam Bahasa Indonesia serta titik dalam bahasa Inggris. Koma atau Titik berlaku untuk membaca sekaligus menampilkan.",
   "settings.places": "Jumlah angka desimal",
   "settings.places.auto": "Otomatis",
-
   "tabs.label": "Analisis",
   "tabs.describe": "Deskriptif / Grafik",
   "tabs.tests": "Uji hipotesis",
   "tabs.correlation": "Korelasi",
   "tabs.regression": "Regresi",
   "tabs.sampleSize": "Ukuran sampel",
-
   "picker.metric": "Variabel metrik",
   "picker.ordinal": "Variabel ordinal",
   "picker.nominal": "Variabel nominal",
@@ -97,15 +81,12 @@
   "picker.independent": "Variabel independen",
   "picker.noData": "Tempel data di atas untuk memilih variabel.",
   "picker.noneOfType": "Tidak ada",
-
   "section.comingSoon": "Hasil untuk tab ini masih dalam pengerjaan.",
-
   "result.copy": "Salin",
   "result.copied": "Tersalin",
   "result.interpretation": "Interpretasi",
   "result.addToReport": "Tambah ke laporan",
   "result.added": "Ditambahkan",
-
   "report.title": "Laporan",
   "report.open": "Buka laporan (isi: {count})",
   "report.copyAll": "Salin semua",
@@ -119,7 +100,6 @@
   "report.data": "Data",
   "report.size": "Ukuran",
   "report.version": "versi {version}",
-
   "dev.demoTitle": "Tabel demo (hanya di versi pengembangan)",
   "dev.demoHeading": "Uji tampilan",
   "dev.variable": "Variabel",
@@ -127,5 +107,25 @@
   "dev.nUsed": "n dipakai",
   "dev.nMissing": "n dikeluarkan (hilang)",
   "dev.demoInterpretation": "Tabel ini mencantumkan setiap variabel yang dicentang beserta jumlah nilai yang dapat dipakai (n dipakai) dan jumlah sel yang hilang (n dikeluarkan). Tabel ini hanya untuk menguji Salin, Interpretasi, dan Tambah ke laporan.",
-  "dev.tickSomething": "Centang sebuah variabel untuk melihat tabel demo."
+  "dev.tickSomething": "Centang sebuah variabel untuk melihat tabel demo.",
+  "toolbar.copyData": "Salin data",
+  "grid.label": "Tabel data",
+  "grid.help": "Klik sel lalu ketik, atau tempel satu blok dengan Ctrl+V. Klik kanan untuk menyisipkan atau menghapus baris dan kolom; Ctrl+Z untuk membatalkan.",
+  "grid.notSaved": "Tidak ada yang tersimpan: gunakan Salin data untuk menyimpan perubahan Anda di Excel atau Google Sheets.",
+  "grid.menu.insertRowAbove": "Sisipkan baris di atas",
+  "grid.menu.insertRowBelow": "Sisipkan baris di bawah",
+  "grid.menu.deleteRows": "Hapus baris terpilih",
+  "grid.menu.insertColLeft": "Sisipkan kolom di kiri",
+  "grid.menu.insertColRight": "Sisipkan kolom di kanan",
+  "grid.menu.deleteCols": "Hapus kolom terpilih",
+  "grid.menu.cut": "Potong",
+  "grid.menu.copy": "Salin",
+  "grid.menu.clear": "Kosongkan sel",
+  "grid.menu.undo": "Batalkan",
+  "grid.menu.redo": "Ulangi",
+  "notice.dataCopied": "Seluruh tabel sudah disalin. Tempel ke Excel atau Google Sheets untuk menyimpannya.",
+  "notice.copyFailed": "Browser tidak mengizinkan penyalinan. Blok sel-selnya lalu tekan Ctrl+C.",
+  "confirm.editsLost": "Perubahan Anda tidak tersimpan di mana pun. Gunakan Salin data dulu jika ingin menyimpannya.",
+  "variable.valuesHint": "Untuk mengubah nilai, edit sel di tabel. Mengubah nama, skala, atau satuan tidak pernah mengubah data.",
+  "report.staleNote": "Dibuat dari versi data sebelumnya (sidik data {fingerprint}); data diubah setelahnya."
 }

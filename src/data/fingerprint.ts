@@ -13,16 +13,15 @@ export function canonicalCell(cell: string): string {
   return t;
 }
 
-export function canonicalText(header: readonly string[], rows: readonly (readonly string[])[]): string {
-  return [header, ...rows].map((r) => r.map(canonicalCell).join('\t')).join('\n');
+/** Data rows only: renaming a column never changes the fingerprint. */
+export function canonicalText(rows: readonly (readonly string[])[]): string {
+  return rows.map((r) => r.map(canonicalCell).join('\t')).join('\n');
 }
 
-/** First 8 hex characters of SHA-256 over the canonical cells, header row included. */
-export async function fingerprint(
-  header: readonly string[],
-  rows: readonly (readonly string[])[],
-): Promise<string> {
-  const bytes = new TextEncoder().encode(canonicalText(header, rows));
+/** First 8 hex characters of SHA-256 over the canonical data cells; '' for an empty table. */
+export async function fingerprint(rows: readonly (readonly string[])[]): Promise<string> {
+  if (rows.length === 0) return '';
+  const bytes = new TextEncoder().encode(canonicalText(rows));
   const digest = await crypto.subtle.digest('SHA-256', bytes);
   return Array.from(new Uint8Array(digest).slice(0, 4), (b) => b.toString(16).padStart(2, '0')).join('');
 }

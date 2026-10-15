@@ -13,7 +13,7 @@ export function DevDemo(props: {
   dataset: Dataset;
   selected: string[];
   isMissing: (c: string) => boolean;
-  onAdd: (item: Omit<ReportItem, 'id'>) => void;
+  onAdd: (item: Omit<ReportItem, 'id' | 'fingerprint'>) => void;
 }) {
   const t = useT();
   const vars = props.selected

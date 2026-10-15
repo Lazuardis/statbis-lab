@@ -1,7 +1,8 @@
 # Statbis Lab
 
-A free statistics app that runs entirely in the browser. Students paste their data from Excel or
-Google Sheets; nothing is uploaded or saved. The full specification is in [CLAUDE.md](CLAUDE.md).
+A free statistics app that runs entirely in the browser. Students type their data into the
+spreadsheet or paste it from Excel or Google Sheets; nothing is uploaded or saved (*Copy data*
+puts the table back on the clipboard). The full specification is in [CLAUDE.md](CLAUDE.md).
 
 ## Everyday commands
 
@@ -30,7 +31,7 @@ No environment variables or server functions are needed.
 
 ## Folder guide
 
-- `src/data/` — reading pasted tables, missing values, variable types, the dataset fingerprint
+- `src/data/` — reading pasted tables, spreadsheet editing, missing values, variable types, the fingerprint
 - `src/stats/` — the statistical formulas (from Milestone 2)
 - `src/ui/` — the screens; `src/i18n/` — every text in English and Bahasa Indonesia
 - `examples/` — practice datasets (made by `scripts/make_examples.py`)

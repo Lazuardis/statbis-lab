@@ -31,7 +31,7 @@ export function VariableDialog(props: {
     const name = draft.name.trim();
     if (!name) return setError(t('variable.nameEmpty'));
     if (props.otherNames.some((o) => o.toLowerCase() === name.toLowerCase())) return setError(t('variable.nameTaken'));
-    props.onSave({ ...draft, name, unit: draft.unit.trim() });
+    props.onSave({ ...draft, name, autoName: draft.autoName && name === props.variable.name, unit: draft.unit.trim() });
   };
 
   return (
@@ -132,7 +132,7 @@ export function VariableDialog(props: {
           </div>
         )}
 
-        <p class="muted small">{t('variable.readOnly')}</p>
+        <p class="muted small">{t('variable.valuesHint')}</p>
       </form>
     </Modal>
   );
