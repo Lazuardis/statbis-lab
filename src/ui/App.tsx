@@ -23,6 +23,7 @@ import type { ReportItem, ReportMeta } from './report';
 import { copyRich } from './table';
 import { Correlation, Regression } from './sections/CorrelationRegression';
 import { MethodGuide } from './sections/MethodGuide';
+import { Guides } from './sections/Guides';
 import { Describe } from './sections/Describe';
 import { SampleSize } from './sections/SampleSize';
 import { Tests } from './sections/tests/Tests';
@@ -292,6 +293,9 @@ export function App() {
       <div class="page">
         <Header lang={lang} onLang={(l: Lang) => setPrefs({ ...prefs, lang: l })} />
 
+        {route === 'guides' ? (
+          <Guides />
+        ) : (
         <main>
           <DataToolbar
             onNew={newData}
@@ -384,6 +388,7 @@ export function App() {
             )}
           </div>
         </main>
+        )}
 
         <ReportButton count={report.length} onOpen={() => setDrawerOpen(true)} />
       </div>

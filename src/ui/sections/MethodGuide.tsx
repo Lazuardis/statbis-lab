@@ -113,6 +113,9 @@ export function MethodGuide(props: { onClose: () => void }) {
         >
           {t('guide.open')}
         </button>
+        <a class="link-btn" href="#/guides" onClick={props.onClose}>
+          {t('guides.open')}
+        </a>
       </div>
     </Modal>
   );

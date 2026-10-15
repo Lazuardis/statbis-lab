@@ -29,6 +29,15 @@ The app is a plain static site, so Vercel only needs three settings:
 
 No environment variables or server functions are needed.
 
+## Training pack
+
+- Nine practice datasets load from **Example data** (Contoh data); their intended results are
+  listed at the top of `scripts/make_examples.py`.
+- One printable page per method: Hypothesis tests tab → **Not sure which test?** → **Printable
+  method guides** (or open `#/guides`). Print, or save as PDF from the print dialog. The guides use
+  the app's own interpretation and assumption texts, filled with results from the example data,
+  in the language chosen in the header.
+
 ## Folder guide
 
 - `src/data/` — reading pasted tables, spreadsheet editing, missing values, variable types, the fingerprint

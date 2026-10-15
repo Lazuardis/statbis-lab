@@ -1,7 +1,7 @@
 import { useT, type MessageKey } from '../../i18n/i18n';
 import { ROUTES, type Route } from './router';
 
-const LABELS: Record<Route, MessageKey> = {
+const LABELS: Record<Exclude<Route, 'guides'>, MessageKey> = {
   describe: 'tabs.describe',
   tests: 'tabs.tests',
   correlation: 'tabs.correlation',
