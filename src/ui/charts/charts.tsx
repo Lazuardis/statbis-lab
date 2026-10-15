@@ -320,3 +320,46 @@ export function BarChart(props: {
 }
 
 export { tickLabel };
+
+// ---------------------------------------------------------------- scatter and residual plots
+
+export function Scatter(props: {
+  title: string;
+  xLabel: string;
+  yLabel: string;
+  x: number[];
+  y: number[];
+  /** Fitted line y = a + b·x drawn across the x range, if given. */
+  line?: { a: number; b: number } | null;
+  /** Horizontal reference at y = 0 (residual plot). */
+  zeroLine?: boolean;
+  sep: Sep;
+}) {
+  const [x0, x1] = niceDomain(Math.min(...props.x), Math.max(...props.x));
+  const ys = props.zeroLine ? [...props.y, 0] : props.y;
+  const [y0, y1] = niceDomain(Math.min(...ys), Math.max(...ys));
+  const sx = scale(x0, x1, M.left, W - M.right);
+  const sy = scale(y0, y1, H - M.bottom, M.top);
+  const lo = Math.min(...props.x);
+  const hi = Math.max(...props.x);
+  return (
+    <Svg title={props.title}>
+      <YAxis ticks={niceTicks(y0, y1)} y={sy} x={M.left} label={props.yLabel} sep={props.sep} />
+      <XAxis ticks={niceTicks(x0, x1)} x={sx} y={H - M.bottom} label={props.xLabel} sep={props.sep} />
+      {props.zeroLine && <line x1={sx(x0)} x2={sx(x1)} y1={sy(0)} y2={sy(0)} stroke={C.muted} stroke-dasharray="5 4" />}
+      {props.x.map((v, i) => (
+        <circle key={i} cx={sx(v)} cy={sy(props.y[i]!)} r="3.5" fill={C.accent} fill-opacity="0.7" />
+      ))}
+      {props.line && (
+        <line
+          x1={sx(lo)}
+          y1={sy(props.line.a + props.line.b * lo)}
+          x2={sx(hi)}
+          y2={sy(props.line.a + props.line.b * hi)}
+          stroke={GROUP_COLOURS[5]}
+          stroke-width="2"
+        />
+      )}
+    </Svg>
+  );
+}

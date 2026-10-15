@@ -21,7 +21,8 @@ import { LangContext, translate, type Lang, type MessageKey, type Vars } from '.
 import { displaySep, loadPrefs, savePrefs, type Prefs } from './prefs';
 import type { ReportItem, ReportMeta } from './report';
 import { copyRich } from './table';
-import { ComingSoon } from './sections/ComingSoon';
+import { Correlation, Regression } from './sections/CorrelationRegression';
+import { MethodGuide } from './sections/MethodGuide';
 import { Describe } from './sections/Describe';
 import { SampleSize } from './sections/SampleSize';
 import { Tests } from './sections/tests/Tests';
@@ -74,6 +75,7 @@ export function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [variableIndex, setVariableIndex] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
   const [confirmReq, setConfirmReq] = useState<ConfirmRequest | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   const nextId = useRef(1);
@@ -331,6 +333,13 @@ export function App() {
           <Tabs route={route} />
 
           <div class="analysis">
+            {route === 'tests' && (
+              <p class="guide-link">
+                <button type="button" class="link-btn" onClick={() => setGuideOpen(true)}>
+                  {t('guide.link')}
+                </button>
+              </p>
+            )}
             {pickerTab && (
               <VariablePicker
                 variables={pickerVariables}
@@ -366,10 +375,12 @@ export function App() {
                 isMissing={isMissing}
                 onAdd={addToReport}
               />
-            ) : route === 'sample-size' ? (
-              <SampleSize onAdd={addToReport} />
+            ) : route === 'correlation' ? (
+              !empty && <Correlation dataset={dataset} selected={liveSelection('correlation')} isMissing={isMissing} onAdd={addToReport} />
+            ) : route === 'regression' ? (
+              !empty && <Regression dataset={dataset} selection={liveRegression} isMissing={isMissing} onAdd={addToReport} />
             ) : (
-              <ComingSoon />
+              <SampleSize onAdd={addToReport} />
             )}
           </div>
         </main>
@@ -407,6 +418,8 @@ export function App() {
           onClose={() => setSettingsOpen(false)}
         />
       )}
+
+      {guideOpen && <MethodGuide onClose={() => setGuideOpen(false)} />}
 
       {confirmReq && (
         <ConfirmDialog

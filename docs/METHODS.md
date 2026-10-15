@@ -115,3 +115,16 @@ are always two-sided at 1 − α. Decision: reject H₀ when p < α.
   shaded and the critical value dashed.
 - **Ordinal variables** are refused (with a note) where the rule needs a nominal variable: as the
   grouping variable and in two-categorical tests. One categorical variable alone may be ordinal.
+
+## Correlation and regression (Milestone 5) — `src/stats/regression.ts`
+
+Golden-tested against `scipy.stats.pearsonr` and statsmodels OLS (`tests/golden/regression.json`).
+
+- **Pearson r** = Sxy/√(Sxx·Syy) per pair, using rows where both values are present; test of ρ = 0:
+  t = r√(n − 2)/√(1 − r²), df = n − 2, two-sided. Matrix of r when more than two variables.
+- **Simple linear regression** (Excel `SLOPE`, `INTERCEPT`, `RSQ`, ToolPak regression):
+  b₁ = Sxy/Sxx, b₀ = ȳ − b₁x̄; s = √(SSE/(n − 2)) (standard error of the estimate);
+  SE(b₁) = s/√Sxx, SE(b₀) = s·√(1/n + x̄²/Sxx); t = B/SE, df = n − 2; CI B ± t(1 − α/2, n − 2)·SE;
+  ANOVA SSR, SSE, SST with F = MSR/MSE ("Significance F" = slope p-value). R is reported as |r|.
+- **Predict**: ŷ = b₀ + b₁x₀; a warning when x₀ is outside [min x, max x]. No prediction or
+  confidence intervals (not taught).

@@ -235,10 +235,46 @@ def groups_cases() -> dict:
     return {"anova": anova, "independence": indep, "gof": gof}
 
 
+def regression_cases() -> list[dict]:
+    """Pearson r (scipy) and simple OLS (statsmodels), the Excel ToolPak regression quantities."""
+    import numpy as np
+    import pandas as pd
+    import statsmodels.api as sm
+    from scipy import stats
+
+    ex = ROOT / "examples"
+    d9 = pd.read_csv(ex / "ex09_regression_promo.csv")
+    d5 = pd.read_csv(ex / "ex05_paired_promo.csv")
+    rng = np.random.default_rng(5)
+    xs = [round(v, 2) for v in rng.uniform(0, 10, 25)]
+    pairs = {
+        "ex09 orders on promo": (d9.Promo_spend.tolist(), d9.Orders.astype(float).tolist()),
+        "ex05 after on before": (d5.Units_before.astype(float).tolist(), d5.Units_after.astype(float).tolist()),
+        "weak": (xs, [round(5 + 0.05 * x + v, 2) for x, v in zip(xs, rng.normal(0, 3, 25))]),
+        "negative small": ([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [9.5, 8.1, 7.7, 5.0, 4.4, 2.9]),
+    }
+    out = []
+    for name, (x, y) in pairs.items():
+        pr = stats.pearsonr(x, y)
+        m = sm.OLS(y, sm.add_constant(x)).fit()
+        ci = m.conf_int(0.05)
+        out.append({
+            "name": name, "x": x, "y": y, "r": float(pr.statistic), "rP": float(pr.pvalue),
+            "intercept": float(m.params[0]), "slope": float(m.params[1]),
+            "seIntercept": float(m.bse[0]), "seSlope": float(m.bse[1]),
+            "tIntercept": float(m.tvalues[0]), "tSlope": float(m.tvalues[1]),
+            "pIntercept": float(m.pvalues[0]), "pSlope": float(m.pvalues[1]),
+            "ciIntercept": [float(ci[0][0]), float(ci[0][1])], "ciSlope": [float(ci[1][0]), float(ci[1][1])],
+            "rSquared": float(m.rsquared), "seEstimate": float(np.sqrt(m.mse_resid)),
+            "f": float(m.fvalue), "pF": float(m.f_pvalue), "ssResidual": float(m.ssr), "ssRegression": float(m.ess),
+        })
+    return out
+
+
 def main() -> None:
     GOLDEN.mkdir(parents=True, exist_ok=True)
     for name, data in (("fingerprint", fingerprint_cases()), ("descriptive", descriptive_cases()),
-                       ("tests", tests_cases()), ("groups", groups_cases())):
+                       ("tests", tests_cases()), ("groups", groups_cases()), ("regression", regression_cases())):
         out = GOLDEN / f"{name}.json"
         out.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
         print(f"wrote {out.relative_to(ROOT)}")

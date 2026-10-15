@@ -1318,3 +1318,49 @@ table.result .num {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- correlation, regression, method guide ---------- */
+
+.guide-link {
+  margin: -8px 0 14px;
+  font-size: 15px;
+}
+
+.equation {
+  font-size: 17px;
+}
+
+.guide {
+  display: grid;
+  gap: 8px;
+}
+
+.guide .opt-group .radio {
+  align-items: flex-start;
+}
+
+.guide .opt-group .radio input {
+  margin-top: 4px;
+}
+
+.guide-answer {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 4px 0 12px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: var(--accent-wash);
+}
+
+.guide-answer dt {
+  color: var(--muted);
+}
+
+.guide-answer dd {
+  margin: 0;
+}
+
+.guide .btn {
+  justify-self: start;
+}
