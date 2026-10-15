@@ -50,11 +50,17 @@ under "Ask first" at the end of this file.
   decimal places.
 - **Default language** Bahasa Indonesia; the choice is remembered.
 - **No guide link** in the header for now. *Not sure which test?* stays on the Hypothesis tab (M5).
-- **Course-context agnostic UI**: no course week numbers or "module Poin" references in anything
-  the app shows. Example data may keep the Dapur Kita setting.
+- **Course-context agnostic UI**: no course week numbers, dates, "Final Project" or "module Poin"
+  references in anything the app shows. Example data may keep the Dapur Kita setting. The delivery
+  timeline still applies (milestones 1–5 live before Week 12).
+- **Work through all milestones without stopping** (decided 2026-10-15; replaces "report to
+  Lazuardi before starting the next milestone"). Commit after each milestone and give one short
+  report at the end. Lazuardi is on Claude Pro: keep verification lean (tests plus one browser check
+  per milestone), avoid repeated screenshots.
 - **Font**: Lato bundled locally via `@fontsource/lato` (no Google Fonts request).
-- **Post-hoc after ANOVA**: Lazuardi thinks it is needed; the procedure is still to be chosen
-  (recommended: Tukey–Kramer HSD). Do not build it until he confirms.
+- **Post-hoc after ANOVA**: Tukey–Kramer HSD (confirmed 2026-10-15). Shown under the ANOVA,
+  all pairs: difference (first − second), SE, q, p, simultaneous CI; studentized range
+  distribution; golden-test against statsmodels `pairwise_tukeyhsd` / scipy `tukey_hsd`.
 
 ## Who uses it, and for what
 

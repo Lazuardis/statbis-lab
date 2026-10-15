@@ -18,11 +18,13 @@ import { fingerprint } from '../data/fingerprint';
 import { DEFAULT_INVALID_CODES, makeIsMissing } from '../data/missing';
 import type { Dataset } from '../data/types';
 import { LangContext, translate, type Lang, type MessageKey, type Vars } from '../i18n/i18n';
-import { loadPrefs, savePrefs, type Prefs } from './prefs';
+import { displaySep, loadPrefs, savePrefs, type Prefs } from './prefs';
 import type { ReportItem, ReportMeta } from './report';
 import { copyRich } from './table';
 import { ComingSoon } from './sections/ComingSoon';
-import { DevDemo } from './sections/DevDemo';
+import { Describe } from './sections/Describe';
+import { SampleSize } from './sections/SampleSize';
+import { FmtContext, makeFmt } from './fmt';
 import { DataGrid, DataWarnings, GridFooter, type GridOp } from './shell/DataGrid';
 import { DataToolbar } from './shell/DataToolbar';
 import { Header } from './shell/Header';
@@ -82,6 +84,7 @@ export function App() {
   const isMissing = useMemo(() => makeIsMissing(invalidCodes), [invalidCodes]);
   const warnings = useMemo(() => warningsFor(dataset, invalidCodes), [dataset, invalidCodes]);
   const empty = isEmptyDataset(dataset);
+  const fmt = useMemo(() => makeFmt(displaySep(prefs), prefs.places), [prefs]);
 
   const setPrefs = (p: Prefs) => {
     setPrefsState(p);
@@ -282,6 +285,7 @@ export function App() {
 
   return (
     <LangContext.Provider value={lang}>
+      <FmtContext.Provider value={fmt}>
       <div class="page">
         <Header lang={lang} onLang={(l: Lang) => setPrefs({ ...prefs, lang: l })} />
 
@@ -343,8 +347,18 @@ export function App() {
               />
             )}
 
-            {import.meta.env.DEV && route === 'describe' && !empty ? (
-              <DevDemo dataset={dataset} selected={liveSelection('describe')} isMissing={isMissing} onAdd={addToReport} />
+            {route === 'describe' ? (
+              !empty && (
+                <Describe
+                  dataset={dataset}
+                  selected={liveSelection('describe')}
+                  warnings={warnings}
+                  isMissing={isMissing}
+                  onAdd={addToReport}
+                />
+              )
+            ) : route === 'sample-size' ? (
+              <SampleSize onAdd={addToReport} />
             ) : (
               <ComingSoon />
             )}
@@ -396,6 +410,7 @@ export function App() {
           }}
         />
       )}
+      </FmtContext.Provider>
     </LangContext.Provider>
   );
 }

@@ -15,6 +15,8 @@ export function ResultBlock(props: {
   table: ResultTable;
   /** Templated paragraphs (already filled with live values). */
   interpretation?: string[];
+  /** Lines always shown under the table (missing counts, warnings); also go into the report. */
+  notes?: string[];
   onAdd: (item: Omit<ReportItem, 'id' | 'fingerprint'>) => void;
 }) {
   const t = useT();
@@ -31,6 +33,10 @@ export function ResultBlock(props: {
       ? `<div class="interpretation">${props.interpretation.map((p) => `<p>${escapeHtml(p)}</p>`).join('')}</div>`
       : '';
   const interpText = showInterp && props.interpretation ? `\n\n${props.interpretation.join('\n\n')}` : '';
+
+  const notes = props.notes ?? [];
+  const notesHtml = notes.map((n) => `<p class="table-note">${escapeHtml(n)}</p>`).join('');
+  const notesText = notes.length ? `\n${notes.join('\n')}` : '';
 
   return (
     <div class="result-block">
@@ -63,8 +69,8 @@ export function ResultBlock(props: {
             props.onAdd({
               heading: props.heading,
               title: props.title,
-              html: tableToHtml(props.table) + interpHtml,
-              text: tableToTsv(props.table) + interpText,
+              html: tableToHtml(props.table) + notesHtml + interpHtml,
+              text: tableToTsv(props.table) + notesText + interpText,
             });
             blink('added');
           }}
@@ -102,6 +108,11 @@ export function ResultBlock(props: {
           </tbody>
         </table>
       </div>
+      {notes.map((n) => (
+        <p key={n} class="table-note">
+          {n}
+        </p>
+      ))}
       {showInterp && props.interpretation && (
         <div class="interpretation">
           {props.interpretation.map((p, i) => (

@@ -113,6 +113,8 @@ export const REPORT_CSS = `
 .report-doc table.result .num{text-align:right;font-variant-numeric:tabular-nums}
 .report-doc .interpretation{max-width:46em;margin:8px 0}
 .report-doc .interpretation p{margin:0 0 8px}
+.report-doc .chart svg{display:block;max-width:100%;height:auto;margin:4px 0}
+.report-doc .chart-note,.report-doc .table-note{margin:4px 0;color:#6B7785;font-size:13.5px}
 .report-doc .stale-note{margin:0 0 6px;padding:4px 10px;border-left:3px solid #9A6200;background:#FFF6E0;color:#6B4400;font-size:13.5px}
 `;
 

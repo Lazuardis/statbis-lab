@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@fontsource/lato": "^5.3.0",
+    "jstat": "^1.9.6",
     "preact": "^11.0.1"
   },
   "devDependencies": {

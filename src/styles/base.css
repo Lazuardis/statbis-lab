@@ -1103,3 +1103,117 @@ table.result .num {
     display: none !important;
   }
 }
+
+/* ---------- analysis options and results (Milestone 2) ---------- */
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 48px;
+  margin: 0 0 28px;
+}
+
+.opt-group {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
+}
+
+.opt-group legend,
+.opt-group .field-label {
+  margin: 0 0 4px;
+  padding: 0;
+  font-weight: 700;
+}
+
+.calc-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  max-width: 820px;
+}
+
+.input-small {
+  width: 160px;
+  min-height: 34px;
+}
+
+.table-note {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.note {
+  max-width: 820px;
+}
+
+.chart-section {
+  margin: 8px 0 36px;
+}
+
+.chart-layout {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 0 24px;
+}
+
+.chart-options {
+  padding-right: 16px;
+  border-right: 1px solid var(--rule);
+}
+
+.chart-toolbar {
+  align-items: baseline;
+}
+
+.chart-holder svg {
+  display: block;
+  width: 100%;
+
+  max-width: 640px;
+  height: auto;
+}
+
+.chart-note {
+  max-width: 640px;
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.ss-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px 48px;
+}
+
+.ss-card .field {
+  margin: 0 0 14px;
+}
+
+.ss-card textarea.input {
+  max-width: 360px;
+  resize: vertical;
+}
+
+.ss-minimums ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+@media (max-width: 760px) {
+  .chart-layout,
+  .ss-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-options {
+    padding: 0 0 8px;
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 12px;
+  }
+}

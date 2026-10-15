@@ -63,11 +63,67 @@ def fingerprint_cases() -> list[dict]:
     ]
 
 
+def descriptive_cases() -> dict:
+    """Summary statistics, CIs and Shapiro-Wilk with numpy/scipy (QUARTILE.EXC = 'weibull')."""
+    import numpy as np
+    import pandas as pd
+    from scipy import stats
+
+    ex = ROOT / "examples"
+    rng = np.random.default_rng(7)
+    samples = {
+        "ex01 Delivery_min": pd.read_csv(ex / "ex01_describe_delivery.csv").Delivery_min.dropna().tolist(),
+        "ex02 Basket_value": pd.read_csv(ex / "ex02_ci_basket.csv").Basket_value.tolist(),
+        "ex07 Delivery_min": pd.read_csv(ex / "ex07_anova_outlets.csv").Delivery_min.tolist(),
+        "n=3": [2.0, 7.5, 3.1],
+        "n=4": [10.0, 12.0, 15.0, 30.0],
+        "n=5 ties": [4.0, 4.0, 5.0, 9.0, 9.0],
+        "n=7": [1.2, 3.4, 2.2, 8.9, 5.5, 4.4, 2.0],
+        "n=11": [round(v, 2) for v in rng.normal(50, 10, 11)],
+        "n=12": [round(v, 2) for v in rng.exponential(5, 12)],
+        "n=40 lognormal": [round(v, 3) for v in rng.lognormal(3, 0.6, 40)],
+        "n=300 normal": [round(v, 2) for v in rng.normal(100, 15, 300)],
+    }
+    cases = []
+    for name, x in samples.items():
+        a = np.asarray(x, float)
+        n = len(a)
+
+        def exc(q: float):
+            pos = q * (n + 1)
+            return None if pos < 1 or pos > n else float(np.percentile(a, q * 100, method="weibull"))
+
+        vals, counts = np.unique(a, return_counts=True)
+        top = counts.max()
+        sw = stats.shapiro(a)
+        ci = {}
+        for conf in (0.90, 0.95, 0.99):
+            lo, hi = stats.t.interval(conf, n - 1, a.mean(), a.std(ddof=1) / np.sqrt(n))
+            ci[str(conf)] = {"tCrit": float(stats.t.ppf(1 - (1 - conf) / 2, n - 1)), "lower": float(lo), "upper": float(hi)}
+        cases.append({
+            "name": name, "x": x, "n": n, "mean": float(a.mean()), "sd": float(a.std(ddof=1)),
+            "variance": float(a.var(ddof=1)), "median": float(np.median(a)), "q1": exc(0.25), "q3": exc(0.75),
+            "skewness": float(stats.skew(a, bias=False)),
+            "modes": [] if top == 1 else [float(v) for v in vals[counts == top]],
+            "ci": ci, "shapiroW": float(sw.statistic), "shapiroP": float(sw.pvalue),
+        })
+    props = []
+    for x, n in ((23, 60), (33, 45), (2, 30), (150, 300)):
+        for conf in (0.90, 0.95, 0.99):
+            ph = x / n
+            z = float(stats.norm.ppf(1 - (1 - conf) / 2))
+            se = (ph * (1 - ph) / n) ** 0.5
+            props.append({"x": x, "n": n, "conf": conf, "z": z, "lower": ph - z * se, "upper": ph + z * se,
+                          "conditionsMet": bool(n * ph >= 5 and n * (1 - ph) >= 5)})
+    return {"samples": cases, "proportions": props}
+
+
 def main() -> None:
     GOLDEN.mkdir(parents=True, exist_ok=True)
-    out = GOLDEN / "fingerprint.json"
-    out.write_text(json.dumps(fingerprint_cases(), indent=2) + "\n", encoding="utf-8")
-    print(f"wrote {out.relative_to(ROOT)}")
+    for name, data in (("fingerprint", fingerprint_cases()), ("descriptive", descriptive_cases())):
+        out = GOLDEN / f"{name}.json"
+        out.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+        print(f"wrote {out.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
