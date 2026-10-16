@@ -307,7 +307,10 @@ export function Tests(props: Props) {
 function CountsForm(props: { alpha: number; alt: Alternative; setAlt: (a: Alternative) => void; onAdd: AddFn; dataName: string }) {
   const t = useT();
   const [g, setG] = useState({ n1: 'A', x1: '', t1: '', n2: 'B', x2: '', t2: '', out: 'yes' });
-  const set = (k: keyof typeof g) => (e: Event) => setG({ ...g, [k]: (e.currentTarget as HTMLInputElement).value });
+  const set = (k: keyof typeof g) => (e: Event) => {
+    const value = (e.currentTarget as HTMLInputElement).value;
+    setG((prev) => ({ ...prev, [k]: value }));
+  };
   const ints = [g.x1, g.t1, g.x2, g.t2].map((s) => Number(s.trim()));
   const valid = ints.every((x) => Number.isInteger(x) && x >= 0) && ints[1]! >= 1 && ints[3]! >= 1 && ints[0]! <= ints[1]! && ints[2]! <= ints[3]!;
   const filled = [g.x1, g.t1, g.x2, g.t2].every((s) => s.trim() !== '');
