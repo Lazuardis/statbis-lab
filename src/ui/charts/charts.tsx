@@ -1,7 +1,7 @@
 import { boxStats, mean as meanOf, median as medianOf, sortedCopy } from '../../stats/descriptive';
 import { normInv, normPdf } from '../../stats/distributions';
 import { normalScores } from '../../stats/normality';
-import { C, GROUP_COLOURS, H, M, Svg, W, XAxis, YAxis, jitter, niceDomain, niceTicks, scale, tickLabel } from './common';
+import { C, GROUP_COLOURS, H, M, Svg, W, XAxis, YAxis, jitter, niceDomain, niceTicks, scale, tickLabel, zeroBasedTicks } from './common';
 
 type Sep = '.' | ',';
 
@@ -39,7 +39,7 @@ export function Histogram(props: {
   const curveTop = props.showNormal && s > 0 ? curveAt(m) : 0;
 
   const [x0, x1] = niceDomain(start, start + k * width);
-  const yTicks = niceTicks(0, Math.max(...heights, curveTop) * 1.05 || 1, 5);
+  const yTicks = zeroBasedTicks(Math.max(...heights, curveTop) * 1.05, 5);
   const xs = scale(x0, x1, M.left, W - M.right);
   const ys = scale(0, yTicks.at(-1)!, H - M.bottom, M.top);
 
@@ -279,7 +279,7 @@ export function BarChart(props: {
   label: (v: number) => string;
 }) {
   const k = props.categories.length;
-  const yTicks = niceTicks(0, Math.max(...props.values, 0) * 1.08 || 1, 5);
+  const yTicks = zeroBasedTicks(Math.max(...props.values, 0) * 1.08, 5);
   const ys = scale(0, yTicks.at(-1)!, H - M.bottom, M.top);
   const slot = (W - M.right - M.left) / Math.max(k, 1);
   const bw = Math.min(slot * 0.7, 90);

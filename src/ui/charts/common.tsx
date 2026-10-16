@@ -49,6 +49,12 @@ export function niceDomain(lo: number, hi: number, target = 6): [number, number]
   return [Math.min(lo, Math.floor(lo / step + 1e-9) * step), Math.max(hi, Math.ceil(hi / step - 1e-9) * step)];
 }
 
+/** Ticks from 0 up to the first round number at or above max, so nothing is drawn above the top tick. */
+export function zeroBasedTicks(max: number, target = 5): number[] {
+  const [, top] = niceDomain(0, max > 0 ? max : 1, target);
+  return niceTicks(0, top, target);
+}
+
 export function scale(d0: number, d1: number, r0: number, r1: number) {
   const k = (r1 - r0) / (d1 - d0 || 1);
   return (v: number) => r0 + (v - d0) * k;

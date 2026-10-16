@@ -1,5 +1,5 @@
 import { chi2Inv, chi2Pdf, fInv, fPdf } from '../../stats/distributions';
-import { C, H, M, Svg, W, XAxis, YAxis, niceTicks, scale } from './common';
+import { C, H, M, Svg, W, XAxis, YAxis, niceTicks, scale, zeroBasedTicks } from './common';
 
 /**
  * F or χ² density with the observed statistic marked and the p-value area (to its right) shaded,
@@ -28,7 +28,7 @@ export function DistChart(props: {
   const finite = ys0.filter((y) => Number.isFinite(y));
   // Cap the spike near 0 (F with df1 ≤ 2, χ² with df ≤ 2) so the tail stays visible.
   const yCap = Math.min(Math.max(...finite), (finite[Math.floor(n * 0.08)] ?? 1) * 3);
-  const yTicks = niceTicks(0, yCap * 1.05, 4);
+  const yTicks = zeroBasedTicks(yCap * 1.05, 4);
   const yTop = yTicks.at(-1)!;
   const xTicks = niceTicks(0, xMax);
   const x = scale(0, xTicks.at(-1)!, M.left, W - M.right);
